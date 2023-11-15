@@ -1,5 +1,7 @@
 import base64
 import requests
+import tkinter as tk
+from tkinter import filedialog
 
 # OpenAI API Key
 api_key = "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"
@@ -10,7 +12,8 @@ def encode_image(image_path):
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 # Path to your image
-image_path = r"C:\Users\Behrad\Documents\GitHub\Testing\test.jpeg"
+# image_path = r"C:\Users\Behrad\Documents\GitHub\Testing\test.jpeg"
+image_path = filedialog.askopenfilename(initialdir="/", title="Select Image", filetypes=(("JPEG files", "*.jpeg"), ("PNG files", "*.png")))
 
 # Getting the base64 string
 base64_image = encode_image(image_path)
@@ -20,7 +23,8 @@ headers = {
     "Authorization": f"Bearer {api_key}"
 }
 
-# verander prompt naar op base van gebouw en niet cirkel in de bouwtekekning
+# Prompt text that the user can set
+prompt_text = input("Enter the prompt text: ")
 
 payload = {
     "model": "gpt-4-vision-preview",
@@ -30,7 +34,7 @@ payload = {
         "content": [
           {
             "type": "text",
-            "text": "Van het roodgemaarkeerde gebied wat is de bestemming?, wat zijn de goot- en bouwhoogtes? De goot- en bouwhoogtes kun je vinden binnen de bestemming, dit zijn 2 getallen. Geef je reactie als volgt: Goothoogte: x meter Bouwhoogte: y meter Bestemming: z en indien je het niet kunt lezen mag je x y en z leeglaten en geef geen extra uitleg" 
+            "text": prompt_text
           },
           {
             "type": "image_url",
@@ -47,6 +51,19 @@ payload = {
 
 response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
+
+# Create a tkinter window
+root = tk.Tk()
+
+# Function to get the file path of the selected image
+
+
+# Create a button to select the image
+select_button = tk.Button(root, text="Select Drawing", command=image_path)
+select_button.pack()
+
+# Run the tkinter window
+root.mainloop()
 
 
 print(response.json())
