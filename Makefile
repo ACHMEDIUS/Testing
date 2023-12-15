@@ -1,4 +1,3 @@
-
 # Create a virtual environment called openai-env
 venv:
 	python3 -m venv openai-env
