@@ -38,7 +38,7 @@ def highlight_and_fill_yellow_regions(image_path, output_path):
     cv2.imwrite(output_path, result_bgr)
 
 # Usage example
-image_path = 'destination_map.jpeg'  # Replace with the path to your input image
+image_path = './pics/test.jpeg'  # Replace with the path to your input image
 output_path = 'output.png'  # Replace with the path to save the output image
 
 # Run the function
