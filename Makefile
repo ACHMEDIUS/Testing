@@ -1,10 +1,10 @@
 # Create a virtual environment called openai-env
 venv:
-	python3 -m venv openai-env
+	python3 -m venv venv
 
 # Activate the virtual environment
 activate:
-	source openai-env/Scripts/activate
+	source venv/bin/activate
 
 # Install required Python packages
 install:

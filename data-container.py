@@ -5,22 +5,20 @@ import numpy as np
 import pandas as pd
 import os
 
-# images 
 image_data = []
-for filename in os.listdir('pics'):
+for filename in os.listdir('pics/training'):
     image = load_img(os.path.join('pics', filename))
     image = tf.keras.preprocessing.image.img_to_array(image)
     image = image.reshape((1, 224, 224, 3))
     image_data.append(image)
 
-# bounding boxes
-bounding_boxes = pd.read_csv('bounding_boxes.csv')
+labels = pd.read_csv('labels.csv')
 
 # training and validation sets
 train_images, validation_images = [], []
 train_labels, validation_labels = [], []
 
-for i, row in bounding_boxes.iterrows():
+for i, row in labels.iterrows():
     image = image_data[i]
     label = row['label']
     if row['is_train']:
@@ -30,7 +28,7 @@ for i, row in bounding_boxes.iterrows():
         validation_images.append(image)
         validation_labels.append(label)
 
-# configure image data generator
+# data generator
 train_datagen = ImageDataGenerator(
     rotation_range=20,
     width_shift_range=0.2,
@@ -53,7 +51,6 @@ validation_generator = validation_datagen.flow(
     batch_size=10,
 )
 
-# model
 model = Sequential([
     Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
     MaxPooling2D(2, 2),
@@ -65,12 +62,7 @@ model = Sequential([
     Dense(1, activation='sigmoid')
 ])
 
-# compile model
-model.compile(
-    optimizer='adam',
-    loss='binary_crossentropy',
-    metrics=['accuracy']
-)
+model.compile() # add parameters
 
 history = model.fit(train_generator, epochs=10, validation_data=validation_generator)
 
@@ -84,7 +76,6 @@ for filename in os.listdir('test'):
     test_labels.append(1)
 
 test_datagen = ImageDataGenerator(rescale=1.0 / 255)
-
 test_generator = test_datagen.flow(
     test_images,
     test_labels,

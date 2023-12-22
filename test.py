@@ -18,17 +18,25 @@ def extract_and_save_yellow_regions(image_path, output_folder):
     contours, _ = cv2.findContours(mask_closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     region_file_paths = []
 
+    lower_red = np.array([200, 0, 0], dtype=np.uint8)
+    upper_red = np.array([255, 100, 100], dtype=np.uint8)
+
     for i, contour in enumerate(contours):
         mask = np.zeros_like(mask_yellow)
         cv2.drawContours(mask, [contour], -1, color=255, thickness=cv2.FILLED)
         region = cv2.bitwise_and(image_rgb, image_rgb, mask=mask)
-        region_filename = f"{output_folder}/region_{i}.png"
-        cv2.imwrite(region_filename, cv2.cvtColor(region, cv2.COLOR_RGB2BGR))
-        region_file_paths.append(region_filename)
+
+        red_color_mask = cv2.inRange(region, lower_red, upper_red)
+        red_color_present = cv2.countNonZero(red_color_mask) > 0
+
+        if red_color_present:
+            region_filename = f"{output_folder}/region_{i}.png"
+            cv2.imwrite(region_filename, cv2.cvtColor(region, cv2.COLOR_RGB2BGR))
+            region_file_paths.append(region_filename)
     
     return region_file_paths
 
-# Example usage
-image_path = 'destination_map.jpeg'
+# Usage
+image_path = './pics/test.jpeg'
 output_folder = './regions_output'
 region_file_paths = extract_and_save_yellow_regions(image_path, output_folder)

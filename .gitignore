@@ -1,3 +1,2 @@
-openai-env/
-pics/
-test/
+venv/
+__pychache__/
