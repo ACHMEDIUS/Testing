@@ -6,7 +6,6 @@ def create_directory_if_not_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-# Define multiple color sets
 color_sets = {
     'default': {
         'agrarish': ([225, 230, 200], [240, 250, 220]),
@@ -54,7 +53,7 @@ color_sets = {
     },
 }
 
-def detect_building_with_red_dot(image_rgb, color_ranges, output_folder=None):
+ detect_building_with_red_dot(image_rgb, color_ranges, output_folder=None):
     lower_red = np.array([200, 0, 0], dtype=np.uint8)
     upper_red = np.array([255, 100, 100], dtype=np.uint8)
     label_counts = {}
@@ -81,11 +80,7 @@ def detect_building_with_red_dot(image_rgb, color_ranges, output_folder=None):
 
                 if output_folder:
                     create_directory_if_not_exists(output_folder)
-                    region_filename = f"{output_folder}/region_{color_label}_{i}.png"
-                    cv2.imwrite(region_filename, cv2.cvtColor(region, cv2.COLOR_RGB2BGR))
-
-    return label_counts
-
+                    region_filename = f"{output_folder}/regi
 def detect_building_in_middle(image_rgb, color_ranges, output_folder=None):
     h, w, _ = image_rgb.shape
     mid_x, mid_y = w // 2, h // 2
@@ -127,5 +122,15 @@ def process_image(image_path, color_set='default', output_folder=None):
         max_color_label = max(label_counts, key=label_counts.get)
         print(f"De bestemming is {max_color_label}")
     else:
-        print("Geen besiptemming gevonden")
-    
+        print("Geen bestemming gevonden")
+
+def detect_containers(image_path):
+    image = cv2.imread(image_path, 0)  
+    blurred = cv2.GaussianBlur(image, (5, 5), 0)
+    circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=50, param2=30, minRadius=10, maxRadius=100)
+
+    # Draw detected circles
+    if circles is not None:
+        circles = np.round(circles[0, :]).astype(int)
+        for (x, y, r) in circles:
+            cv2.circle(image, (x, y), r, (0, 255, 0), 2)
