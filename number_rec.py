@@ -1,37 +1,48 @@
-import keras_ocr
-import cv2
-import numpy as np
+import base64
+import requests
 
-def preprocess_image(image_path):
-    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blur_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
-    threshold_image = cv2.adaptiveThreshold(
-        blur_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
-    )
-    
-    bgr_image = cv2.cvtColor(threshold_image, cv2.COLOR_GRAY2BGR)
-    return bgr_image
+# OpenAI API Key
+api_key = "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"
 
-# image_path = 'containers/old_train/containers/container_0.png'
-# image_path = 'pics/container_test.png'
-image_path = 'pics/test.png'
-preprocessed_image = preprocess_image(image_path)
-image_for_ocr = keras_ocr.tools.read(preprocessed_image)
+# Function to encode the image
+def encode_image(image_path):
+  with open(image_path, "rb") as image_file:
+    return base64.b64encode(image_file.read()).decode('utf-8')
 
-pipeline = keras_ocr.pipeline.Pipeline()
-predictions = pipeline.recognize([image_for_ocr])[0]
+# Path to your image
+image_path = "pics/test.png"
 
-detected_numbers = [] 
+# Getting the base64 string
+base64_image = encode_image(image_path)
 
-for text, box in predictions:
-    if text.isdigit(): 
-        detected_numbers.append(text) 
-        print(f'Detected number: {text}')
-        box = box.astype(int)
-        cv2.polylines(preprocessed_image, [box], isClosed=True, color=(0, 255, 0), thickness=2)
+headers = {
+  "Content-Type": "application/json",
+  "Authorization": f"Bearer {api_key}"
+}
 
-output_path = 'pics/output_image.jpg' 
-cv2.imwrite(output_path, preprocessed_image)
+payload = {
+  "model": "gpt-4-vision-preview",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Give me just the number(s) in this image"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": f"data:image/jpeg;base64,{base64_image}"
+          }
+        }
+      ]
+    }
+  ],
+  "max_tokens": 300
+}
 
-print("Detected numbers:", detected_numbers) 
+response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+
+numbers = response.json()['choices'][0]['message']['content']
+print(numbers)
