@@ -10,7 +10,7 @@ def encode_image(image_path):
     return base64.b64encode(image_file.read()).decode('utf-8')
 
 # Path to your image
-image_path = "pics/test.png"
+image_path = "../pics/output/processed_wonen.png"
 
 # Getting the base64 string
 base64_image = encode_image(image_path)
@@ -33,7 +33,8 @@ payload = {
         {
           "type": "image_url",
           "image_url": {
-            "url": f"data:image/jpeg;base64,{base64_image}"
+            "url": f"data:image/jpeg;base64,{base64_image}",
+            "detail": "low"
           }
         }
       ]
