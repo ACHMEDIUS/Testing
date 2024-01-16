@@ -1,5 +1,4 @@
 # Testing image recognition models
-# Run make 
 <h4>Usage of building recognition and container detection:</h4>
 
 ```python
