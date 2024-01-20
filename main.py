@@ -1,57 +1,67 @@
-from building_rec_module import process_dot, process_middle
-# from container_rec_module import detect_containers
+from detect_module import process_middle
+from key import key
 import base64
 import requests
+import cv2
+import numpy as np
+import re  # Import regular expressions
 
 image_path = "pics/test.jpeg"
-output_folder = 'pics/output'
+output_path = "pics/output"
 color_set = 'set1'
-# Uncomment the desired processing function
-process_dot(image_path, color_set, output_folder)
-# process_middle(image_path, color_set, output_folder)
+save_output = True
+processed_image = process_middle(image_path, color_set, save_output, output_path)
 
-new_image_path = process_dot(image_path, color_set='set1', output_folder=output_folder)
+# Convert to base64
+_, buffer = cv2.imencode('.jpg', processed_image)
+base64_image = base64.b64encode(buffer).decode('utf-8')
 
-# openai key
-api_key = "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"
-
-# Function to encode the image
-def encode_image(image_path):
-  with open(image_path, "rb") as image_file:
-    return base64.b64encode(image_file.read()).decode('utf-8')
-
-# Getting the base64 string
-base64_image = encode_image(new_image_path)
+# OpenAI key
+api_key = key
 
 headers = {
-  "Content-Type": "application/json",
-  "Authorization": f"Bearer {api_key}"
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {api_key}"
 }
 
 payload = {
-  "model": "gpt-4-vision-preview",
-  "messages": [
-    {
-      "role": "user",
-      "content": [
+    "model": "gpt-4-vision-preview",
+    "messages": [
         {
-          "type": "text",
-          "text": "Give me just the number(s) in this image"
-        },
-        {
-          "type": "image_url",
-          "image_url": {
-            "url": f"data:image/jpeg;base64,{base64_image}",
-            "detail": "low"
-          }
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "As your response, give me just the number(s) in green marked circle part of the image (all the numbers)"
+                },
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}",
+                        "detail": "low"
+                    }
+                }
+            ]
         }
-      ]
-    }
-  ],
-  "max_tokens": 300
+    ],
+    "max_tokens": 300
 }
 
 response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
-numbers = response.json()['choices'][0]['message']['content']
-print(numbers)
+if response.status_code == 200:
+    numbers_string = response.json()['choices'][0]['message']['content']
+    # Extract numbers from the response string
+    numbers = re.findall(r'\d+', numbers_string)
+    # Convert extracted strings to integers
+    numbers = [int(num) for num in numbers[:2]]  # Limit to max 2 numbers
+
+    # Format the output
+    if len(numbers) == 0:
+        print("No height or width detected")
+    elif len(numbers) == 1:
+        print(f"De bouwhoogte is: {numbers[0]}")
+    else:
+        print(f"De bouwhoogte is: {numbers[0]}\nDe goothoogte is: {numbers[1]}.")
+else:
+    print(f"Error: {response.status_code}, {response.text}")
