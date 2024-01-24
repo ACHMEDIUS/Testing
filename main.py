@@ -1,5 +1,4 @@
 from detect_module import process_middle
-from key import key
 import base64
 import requests
 import cv2
@@ -17,7 +16,7 @@ _, buffer = cv2.imencode('.jpg', processed_image)
 base64_image = base64.b64encode(buffer).decode('utf-8')
 
 # OpenAI key
-api_key = key
+api_key = 
 
 headers = {
     "Content-Type": "application/json",
