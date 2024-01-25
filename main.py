@@ -61,6 +61,11 @@ if response.status_code == 200:
     elif len(numbers) == 1:
         print(f"De bouwhoogte is: {numbers[0]}")
     else:
-        print(f"De bouwhoogte is: {numbers[0]}\nDe goothoogte is: {numbers[1]}.")
+        if numbers[0] == numbers[1]:
+            print(f"De bouwhoogte is: {numbers[0]}\nDe goothoogte is: {numbers[1]}.")
+        else:
+            bouwhoogte = min(numbers)
+            goothoogte = max(numbers)
+            print(f"De bouwhoogte is: {bouwhoogte}\nDe goothoogte is: {goothoogte}.")
 else:
     print(f"Error: {response.status_code}, {response.text}")
