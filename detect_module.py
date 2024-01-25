@@ -22,16 +22,23 @@ def detect_middle(image_rgb, color_ranges):
         contours_color, _ = cv2.findContours(mask_closed_color, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         for contour in contours_color:
-            if cv2.pointPolygonTest(contour, (mid_x, mid_y), False) >= 0:
+            # Calculate the centroid of the contour
+            M = cv2.moments(contour)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+
+            # Check if the centroid is within a certain distance from the image's center
+            if abs(cX - mid_x) <= 50 and abs(cY - mid_y) <= 50:  # adjust the value as needed
                 mask = np.zeros_like(mask_color)
                 cv2.drawContours(mask, [contour], -1, color=255, thickness=cv2.FILLED)
                 region = cv2.bitwise_and(image_rgb, image_rgb, mask=mask)
                 output_image = process_image(region, color_label)
                 destination_type = color_label  
                 print(f"Destination type: {destination_type}")  
-                break  
-    
-    return output_image
+                return output_image  # return immediately after finding the middle region
+
+    # If no middle region is found, return None
+    return None
 
 
 def process_image(region, color_label):
