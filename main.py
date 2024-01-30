@@ -15,7 +15,7 @@ _, buffer = cv2.imencode('.jpg', processed_image)
 base64_image = base64.b64encode(buffer).decode('utf-8')
 
 # OpenAI key
-api_key = "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"
+api_key = ""
 
 headers = {
     "Content-Type": "application/json",
