@@ -2,11 +2,10 @@ from detect_module import process_middle
 import base64
 import requests
 import cv2
-import numpy as np
-import re  # Import regular expressions
+import re
 
-image_path = "pics/test.jpeg"
-output_path = "pics/output"
+image_path = "pics/map.jpeg"
+output_path = "output"
 color_set = 'set1'
 save_output = True
 processed_image = process_middle(image_path, color_set, save_output, output_path)
@@ -16,7 +15,7 @@ _, buffer = cv2.imencode('.jpg', processed_image)
 base64_image = base64.b64encode(buffer).decode('utf-8')
 
 # OpenAI key
-api_key = 
+api_key = "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"
 
 headers = {
     "Content-Type": "application/json",
@@ -50,22 +49,15 @@ response = requests.post("https://api.openai.com/v1/chat/completions", headers=h
 
 if response.status_code == 200:
     numbers_string = response.json()['choices'][0]['message']['content']
-    # Extract numbers from the response string
     numbers = re.findall(r'\d+', numbers_string)
-    # Convert extracted strings to integers
-    numbers = [int(num) for num in numbers[:2]]  # Limit to max 2 numbers
+    numbers = [int(num) for num in numbers[:2]] 
 
-    # Format the output
+    # enforce order
     if len(numbers) == 0:
         print("No height or width detected")
     elif len(numbers) == 1:
         print(f"De bouwhoogte is: {numbers[0]}")
     else:
-        if numbers[0] == numbers[1]:
-            print(f"De bouwhoogte is: {numbers[0]}\nDe goothoogte is: {numbers[1]}.")
-        else:
-            bouwhoogte = min(numbers)
-            goothoogte = max(numbers)
-            print(f"De bouwhoogte is: {bouwhoogte}\nDe goothoogte is: {goothoogte}.")
+        print(f"De bouwhoogte is: {numbers[0]}\nDe goothoogte is: {numbers[1]}.")
 else:
     print(f"Error: {response.status_code}, {response.text}")
