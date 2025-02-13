@@ -39,24 +39,6 @@ def wait_for_page_change(driver, interval=0.1, timeout=60):
 
     start_time = time.time()
 
-    # while True:
-    #     # Wait for the specified interval
-    #     time.sleep(interval)
-
-    #     # Refresh the page and get the current content
-    #     driver.refresh()
-    #     current_content = driver.page_source
-
-    #     # Check if the page content has changed
-    #     if current_content != initial_content:
-    #         print(colored("Page content has changed!", "green"))
-    #         break
-
-    #     # Exit if the timeout is exceeded
-    #     if time.time() - start_time > timeout:
-    #         print(colored("Timeout exceeded. No changes detected.", "yellow"))
-    #         break
-
     while True:
         # Wait for the specified interval
         time.sleep(interval)
